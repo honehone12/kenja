@@ -1,5 +1,8 @@
 use mongodb::Client as MongoClient;
-use super::search_engine::SearchEngine;
+use crate::{
+    database::search_engine::SearchEngine,
+    documents::anime_search::{Candidate, Rating}
+};
 
 #[derive(Clone)]
 pub(crate) struct MongoDb {
@@ -14,6 +17,16 @@ impl MongoDb {
             mongo_client
         };
         Ok(mongo_db)
+    }
+
+    pub(crate) async fn search(&self, keyword: String, rating: Rating) {
+        let collection_name = match rating {
+            Rating::AllAges => "anime_text_all_ages",
+            Rating::Hentai => "anime_text_hentai"
+        };
+        let collection = self.mongo_client
+            .database("anime")
+            .collection::<Candidate>(&collection_name);
     }
 }
 

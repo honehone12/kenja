@@ -21,7 +21,5 @@ async fn main() -> anyhow::Result<()> {
     // let db_uri = env::var("DB_URI")?;
     // let db = Database::new(db_uri).await?;
 
-    info!("hello world");
-
     Ok(())
 }
