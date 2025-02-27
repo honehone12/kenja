@@ -18,8 +18,8 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
     dotenvy::dotenv()?;
 
-    // let db_uri = env::var("DB_URI")?;
-    // let db = Database::new(db_uri).await?;
+    let db_uri = env::var("DB_URI")?;
+    let db = Engine::new(db_uri).await?;
 
     Ok(())
 }
