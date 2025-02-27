@@ -1,16 +1,13 @@
+mod search_engine;
 mod services {
     pub(crate) mod anime_search;
-}
-mod database {
-    pub(crate) mod search_engine;
-    pub(crate) mod mongo;
 }
 mod documents {
     pub(crate) mod anime_search;
 }
 
 use std::env;
-use database::search_engine::Engine;
+use search_engine::Engine;
 use tracing::info;
 
 #[tokio::main]
