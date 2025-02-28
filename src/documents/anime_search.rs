@@ -6,20 +6,13 @@ use crate::services::anime_search::{
     Candidate as CandidateMsg
 };
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 pub(crate) enum Rating {
     AllAges,
     Hentai
 }
 
 impl Rating {
-    pub(crate) fn into_msg(self) -> RatingMsg {
-        match self {
-            Rating::AllAges => RatingMsg::AllAges,
-            Rating::Hentai => RatingMsg::Hentai
-        }
-    }
-
     pub(crate) fn from_msg(msg: RatingMsg) -> Self {
         match msg {
             RatingMsg::Unspecified => Rating::AllAges,

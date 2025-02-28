@@ -6,11 +6,12 @@ use crate::documents::anime_search::{Candidate, Rating};
 
 pub(crate) type Engine = mongo::Mongo;
 
-pub(crate) trait SearchEngine {
-    async fn search(&self, keyword: &str, rating: Rating)
+#[async_trait::async_trait]
+pub(crate) trait SearchEngine: Clone + Send + Sync + 'static {
+    async fn search(self, keyword: String, rating: Rating)
     -> anyhow::Result<
         Pin<Box<
-            impl Stream<Item = anyhow::Result<Candidate>>
+            dyn Stream<Item = anyhow::Result<Candidate>> + Send + 'static
         >>,
     >;
 }

@@ -1,4 +1,4 @@
-use std::{pin::Pin, error::Error as StdError};
+use std::pin::Pin;
 use mongodb::{
     Client as MongoClient, 
     bson::doc
@@ -10,7 +10,7 @@ use crate::documents::anime_search::{Candidate, Rating};
 
 #[derive(Clone)]
 pub(crate) struct Mongo {
-    mongo_client: MongoClient    
+    mongo_client: MongoClient   
 }
 
 impl Mongo {
@@ -24,20 +24,20 @@ impl Mongo {
     }
 }
 
+#[async_trait::async_trait]
 impl SearchEngine for Mongo {
-    async fn search(&self, keyword: &str, rating: Rating)
+    async fn search(self, keyword: String, rating: Rating)
     -> anyhow::Result<
         Pin<Box<
-            impl Stream<Item = anyhow::Result<Candidate>>
+            dyn Stream<Item = anyhow::Result<Candidate>> + Send + 'static
         >>,
     > {
-        let collection_name = match rating {
-            Rating::AllAges => "anime_text_all_ages",
-            Rating::Hentai => "anime_text_hentai"
-        };
         let collection = self.mongo_client
             .database("anime")
-            .collection::<Candidate>(&collection_name);
+            .collection::<Candidate>(match rating {
+                Rating::AllAges => "anime_text_all_ages",
+                Rating::Hentai => "anime_text_hentai"
+            });
 
         let keyword = keyword
             .escape_default()
@@ -47,7 +47,7 @@ impl SearchEngine for Mongo {
             .map(|s| format!("\"{s}\""))
             .collect::<Vec<String>>()
             .join(" ");
-        debug!("{keyword}");
+        debug!("search keyword: {keyword}");
         
         let candidates = collection.find(doc! {
             "$text": {"$search": keyword}
@@ -68,12 +68,12 @@ mod test {
     use super::Mongo;
     
     #[tokio::test]
-    async fn test_search() -> anyhow::Result<()> {
+    async fn test_search_engine() -> anyhow::Result<()> {
         dotenvy::dotenv()?;
 
         let mongo_uri = env::var("ENGINE_URI")?;
         let mongo = Mongo::new(mongo_uri).await?;
-        let keyword = "school band music club";
+        let keyword = "school band music club".to_string();
         let mut stream = mongo.search(keyword, Rating::AllAges).await?;
         while let Some(candidate) = stream.try_next().await? {
             println!("{candidate:?}");
