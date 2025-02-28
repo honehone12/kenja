@@ -16,9 +16,7 @@ pub(crate) struct AnimeSearchService<EN: SearchEngine> {
 
 impl<EN: SearchEngine> AnimeSearchService<EN> {
     pub(crate) fn new(engine: EN) -> Self {
-        Self{
-            engine
-        }
+        Self{engine}
     }
 } 
 

@@ -8,7 +8,10 @@ mod documents {
 }
 
 use std::env;
-use services::anime_search::{anime_search_server::AnimeSearchServer, AnimeSearchService};
+use services::anime_search::{
+    anime_search_server::AnimeSearchServer, 
+    AnimeSearchService
+};
 use search_engine::mongo::Mongo;
 use tonic::transport::Server;
 

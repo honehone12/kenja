@@ -13,6 +13,7 @@ pub(crate) enum Rating {
 }
 
 impl Rating {
+    #[inline]
     pub(crate) fn from_msg(msg: RatingMsg) -> Self {
         match msg {
             RatingMsg::Unspecified => Rating::AllAges,
@@ -29,6 +30,7 @@ pub(crate) struct Character {
 }
 
 impl Character {
+    #[inline]
     pub(crate) fn into_msg(self) -> CharacterMsg {
         CharacterMsg{
             name: self.name,
@@ -45,6 +47,7 @@ pub(crate) struct Anime {
 }
 
 impl Anime {
+    #[inline]
     pub(crate) fn into_msg(self) -> AnimeMsg {
         AnimeMsg{
             name: self.title,
@@ -61,6 +64,7 @@ pub(crate) struct Candidate {
 }
 
 impl Candidate {
+    #[inline]
     pub(crate) fn into_msg(self) -> CandidateMsg {
         let mut characters = vec![];
         for c in self.characters {
