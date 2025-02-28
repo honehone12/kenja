@@ -26,7 +26,7 @@ impl Mongo {
 
 #[async_trait::async_trait]
 impl SearchEngine for Mongo {
-    async fn search(self, keyword: String, rating: Rating)
+    async fn search(&self, keyword: String, rating: Rating)
     -> anyhow::Result<
         Pin<Box<
             dyn Stream<Item = anyhow::Result<Candidate>> + Send + 'static

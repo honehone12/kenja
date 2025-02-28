@@ -11,8 +11,16 @@ use tracing::error;
 tonic::include_proto!("kenja_anime_search");
 
 pub(crate) struct AnimeSearchService<EN: SearchEngine> {
-    pub(super) engine: EN
+    engine: EN
 }
+
+impl<EN: SearchEngine> AnimeSearchService<EN> {
+    pub(crate) fn new(engine: EN) -> Self {
+        Self{
+            engine
+        }
+    }
+} 
 
 #[tonic::async_trait]
 impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<EN> {
