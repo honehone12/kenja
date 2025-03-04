@@ -18,7 +18,6 @@ use tonic::transport::Server as GrpcServer;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
-    dotenvy::dotenv()?;
     
     let serve_at = env::var("SERVE_AT")?.parse()?;
 
