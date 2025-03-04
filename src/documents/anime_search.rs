@@ -1,8 +1,7 @@
 use serde::{Serialize, Deserialize};
 use crate::services::anime_search::{
     Rating as RatingMsg,
-    Character as CharacterMsg,
-    Anime as AnimeMsg,
+    Parent as ParentMsg,
     Candidate as CandidateMsg
 };
 
@@ -24,56 +23,42 @@ impl Rating {
 }
  
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct Character {
-    pub(crate) name: Option<String>,
-    pub(crate) name_kanji: Option<String>  
+pub(crate) struct Parent {
+    pub(crate) name: String,
+    pub(crate) name_japanese: Option<String>
 }
 
-impl Character {
+impl Parent {
     #[inline]
-    pub(crate) fn into_msg(self) -> CharacterMsg {
-        CharacterMsg{
+    pub(crate) fn into_msg(self) -> ParentMsg {
+        ParentMsg{
             name: self.name,
-            name_japanese: self.name_kanji,
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct Anime {
-    pub(crate) title: Option<String>,
-    pub(crate) title_english: Option<String>,
-    pub(crate) title_japanese: Option<String>
-}
-
-impl Anime {
-    #[inline]
-    pub(crate) fn into_msg(self) -> AnimeMsg {
-        AnimeMsg{
-            name: self.title,
-            name_english: self.title_english,
-            name_japanese: self.title_japanese,
+            name_japanese: self.name_japanese,
         }
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Candidate {
-    pub(crate) anime: Anime,
-    pub(crate) characters: Vec<Character>
+    pub(crate) url: String,
+    pub(crate) parent: Option<Parent>,
+    pub(crate) name: String,
+    pub(crate) name_english: Option<String>,
+    pub(crate) name_japanese: Option<String>
 }
 
 impl Candidate {
     #[inline]
     pub(crate) fn into_msg(self) -> CandidateMsg {
-        let mut characters = vec![];
-        for c in self.characters {
-            characters.push(c.into_msg());
-        }
-
         CandidateMsg{
-            anime: Some(self.anime.into_msg()),
-            characters,
+            url: self.url,
+            parent: match self.parent {
+                Some(p) => Some(p.into_msg()),
+                None => None
+            },
+            name: self.name,
+            name_english: self.name_english,
+            name_japanese: self.name_japanese
         }
     }
 }
