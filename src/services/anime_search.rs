@@ -60,9 +60,14 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
 #[cfg(test)]
 mod test {
     use std::env;
+    use tokio_stream::StreamExt;
     use tonic::{transport::Server, Request};
-    use crate::{services::anime_search::{anime_search_client::AnimeSearchClient, Keyword, Rating}, Mongo};
-    use super::{anime_search_server::AnimeSearchServer, AnimeSearchService};
+    use crate::search_engine::mongo::Mongo;
+    use super::{
+        anime_search_server::AnimeSearchServer, 
+        AnimeSearchService,
+        anime_search_client::AnimeSearchClient, Keyword, Rating
+    };
 
     #[tokio::test]
     async fn test_search_servide() -> anyhow::Result<()> {
@@ -82,10 +87,15 @@ mod test {
 
         let mut client = AnimeSearchClient::connect(serve_at).await?;
         
-        client.search(Request::new(Keyword{ 
+        let res = client.search(Request::new(Keyword{ 
             keyword: "school music band club".to_string(), 
             rating: Rating::AllAges.into() 
-        }));
+        })).await?;
+
+        let mut stream = res.into_inner();
+        while let Some(c) = stream.try_next().await? {
+            println!("{c:?}")
+        }
 
         server.await?;
         Ok(())
