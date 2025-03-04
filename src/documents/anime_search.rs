@@ -21,10 +21,10 @@ impl Display for Rating {
     }
 }
 
-impl Rating {
+impl From<RatingMsg> for Rating {
     #[inline]
-    pub(crate) fn from_msg(msg: RatingMsg) -> Self {
-        match msg {
+    fn from(value: RatingMsg) -> Self {
+        match value {
             RatingMsg::Unspecified => Rating::AllAges,
             RatingMsg::AllAges => Rating::AllAges,
             RatingMsg::Hentai => Rating::Hentai
@@ -38,12 +38,12 @@ pub(crate) struct Parent {
     pub(crate) name_japanese: Option<String>
 }
 
-impl Parent {
+impl From<Parent> for ParentMsg {
     #[inline]
-    pub(crate) fn into_msg(self) -> ParentMsg {
+    fn from(value: Parent) -> Self {
         ParentMsg{
-            name: self.name,
-            name_japanese: self.name_japanese,
+            name: value.name,
+            name_japanese: value.name_japanese,
         }
     }
 }
@@ -57,18 +57,15 @@ pub(crate) struct Candidate {
     pub(crate) name_japanese: Option<String>
 }
 
-impl Candidate {
+impl From<Candidate> for CandidateMsg {
     #[inline]
-    pub(crate) fn into_msg(self) -> CandidateMsg {
+    fn from(value: Candidate) -> Self {
         CandidateMsg{
-            url: self.url,
-            parent: match self.parent {
-                Some(p) => Some(p.into_msg()),
-                None => None
-            },
-            name: self.name,
-            name_english: self.name_english,
-            name_japanese: self.name_japanese
+            url: value.url,
+            parent: value.parent.map(|p| p.into()),
+            name: value.name,
+            name_english: value.name_english,
+            name_japanese: value.name_japanese
         }
     }
 }

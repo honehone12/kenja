@@ -13,7 +13,7 @@ use services::anime_search::{
     AnimeSearchService
 };
 use search_engine::mongo::Mongo;
-use tonic::transport::Server;
+use tonic::transport::Server as GrpcServer;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -27,7 +27,7 @@ async fn main() -> anyhow::Result<()> {
     let anime_search_service = AnimeSearchService::new(engine);
     let anime_search_server = AnimeSearchServer::new(anime_search_service);
 
-    Server::builder()
+    GrpcServer::builder()
         .add_service(anime_search_server)
         .serve(serve_at).await?;
 

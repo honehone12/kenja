@@ -31,7 +31,7 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
     async fn search(&self, req: Request<Keyword>)
     -> Result<Response<Self::SearchStream>, Status> {
         let query = req.into_inner();
-        let rating = RatingQuery::from_msg(query.rating());
+        let rating = RatingQuery::from(query.rating());
         let keyword = query.keyword;
         let engine = self.engine.clone();
 
@@ -39,7 +39,7 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
             Ok(s) => {
                 s.map(|r| {
                     match r {
-                        Ok(c) => Ok(c.into_msg()),
+                        Ok(c) => Ok(c.into()),
                         Err(e) => {
                             error!("{e}");
                             Err(Status::internal(INTERNAL_ERROR)) 
@@ -59,8 +59,35 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
 
 #[cfg(test)]
 mod test {
+    use std::env;
+    use tonic::{transport::Server, Request};
+    use crate::{services::anime_search::{anime_search_client::AnimeSearchClient, Keyword, Rating}, Mongo};
+    use super::{anime_search_server::AnimeSearchServer, AnimeSearchService};
+
     #[tokio::test]
     async fn test_search_servide() -> anyhow::Result<()> {
+        dotenvy::dotenv()?;
+
+        let serve_at = env::var("SERVE_AT")?;
+        let addr = serve_at.parse()?;
+
+        let engine_uri = env::var("ENGINE_URI")?;
+        let engine = Mongo::new(engine_uri).await?;
+        let anime_search_service = AnimeSearchService::new(engine);
+        let anime_search_server = AnimeSearchServer::new(anime_search_service);
+
+        let server = Server::builder()
+            .add_service(anime_search_server)
+            .serve(addr);
+
+        let mut client = AnimeSearchClient::connect(serve_at).await?;
+        
+        client.search(Request::new(Keyword{ 
+            keyword: "school music band club".to_string(), 
+            rating: Rating::AllAges.into() 
+        }));
+
+        server.await?;
         Ok(())
     }
 }
