@@ -59,7 +59,7 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
 
 #[cfg(test)]
 mod test {
-    use std::env;
+    use std::{env, time::Duration};
     use tokio_stream::StreamExt;
     use tonic::{transport::Server, Request};
     use crate::search_engine::mongo::Mongo;
@@ -70,22 +70,26 @@ mod test {
     };
 
     #[tokio::test]
-    async fn test_search_servide() -> anyhow::Result<()> {
+    async fn test_search_service() -> anyhow::Result<()> {
         dotenvy::dotenv()?;
 
-        let serve_at = env::var("SERVE_AT")?;
-        let addr = serve_at.parse()?;
+        let serve_at = env::var("SERVE_AT")?.parse()?;
+        let connect_to = "http://127.0.0.1:50051";
 
-        let engine_uri = env::var("ENGINE_URI")?;
-        let engine = Mongo::new(engine_uri).await?;
-        let anime_search_service = AnimeSearchService::new(engine);
-        let anime_search_server = AnimeSearchServer::new(anime_search_service);
+        let handle = tokio::spawn(async move {
+            let engine_uri = env::var("ENGINE_URI").unwrap();
+            let engine = Mongo::new(engine_uri).await.unwrap();
+            let anime_search_service = AnimeSearchService::new(engine);
+            let anime_search_server = AnimeSearchServer::new(anime_search_service);
 
-        let server = Server::builder()
-            .add_service(anime_search_server)
-            .serve(addr);
+            Server::builder()
+                .add_service(anime_search_server)
+                .serve(serve_at).await.unwrap();
+        });
 
-        let mut client = AnimeSearchClient::connect(serve_at).await?;
+        tokio::time::sleep(Duration::from_millis(100)).await;
+
+        let mut client = AnimeSearchClient::connect(connect_to).await?;
         
         let res = client.search(Request::new(Keyword{ 
             keyword: "school music band club".to_string(), 
@@ -97,7 +101,7 @@ mod test {
             println!("{c:?}")
         }
 
-        server.await?;
+        handle.abort();
         Ok(())
     }
 }
