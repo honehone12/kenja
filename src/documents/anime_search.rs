@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter, Result as FmtResult};
 use serde::{Serialize, Deserialize};
 use crate::services::anime_search::{
     Rating as RatingMsg,
@@ -9,6 +10,15 @@ use crate::services::anime_search::{
 pub(crate) enum Rating {
     AllAges,
     Hentai
+}
+
+impl Display for Rating {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        match self {
+            Rating::AllAges => f.write_str("all_ages"),
+            Rating::Hentai => f.write_str("hentai"),
+        }
+    }
 }
 
 impl Rating {

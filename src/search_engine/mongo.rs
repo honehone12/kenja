@@ -4,11 +4,12 @@ use mongodb::{
     bson::doc
 };
 use tokio_stream::{Stream, StreamExt};
-use tracing::debug;
 use super::SearchEngine;
 use crate::documents::anime_search::{Candidate, Rating};
+use tracing::debug;
 
 const FORBIDDEN: [char; 8]  = ['$', '.', '{', '}', '[', ']', ':', ';'];
+const COLLECTION: &str = "flat_ani_chara";
 
 #[derive(Clone)]
 pub(crate) struct Mongo {
@@ -34,10 +35,9 @@ impl SearchEngine for Mongo {
     > {
         let collection = self.mongo_client
             .database("anime")
-            .collection::<Candidate>(match rating {
-                Rating::AllAges => "flat_ani_chara_all_ages",
-                Rating::Hentai => "flat_ani_chara_hentai"
-            });
+            .collection::<Candidate>(
+                &format!("{COLLECTION}_{}", rating.to_string())
+            );
 
         keyword.retain(|c| !FORBIDDEN.contains(&c));
         let keyword = keyword
