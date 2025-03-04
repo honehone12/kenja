@@ -74,7 +74,7 @@ mod test {
         dotenvy::dotenv()?;
 
         let serve_at = env::var("SERVE_AT")?.parse()?;
-        let connect_to = "http://127.0.0.1:50051";
+        let connect_to = format!("http://{serve_at}");
 
         let handle = tokio::spawn(async move {
             let engine_uri = env::var("ENGINE_URI").unwrap();
@@ -84,7 +84,8 @@ mod test {
 
             Server::builder()
                 .add_service(anime_search_server)
-                .serve(serve_at).await.unwrap();
+                .serve(serve_at).await
+                .unwrap();
         });
 
         tokio::time::sleep(Duration::from_millis(100)).await;
