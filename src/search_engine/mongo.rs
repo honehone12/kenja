@@ -8,6 +8,8 @@ use tracing::debug;
 use super::SearchEngine;
 use crate::documents::anime_search::{Candidate, Rating};
 
+const FORBIDDEN: [char; 8]  = ['$', '.', '{', '}', '[', ']', ':', ';'];
+
 #[derive(Clone)]
 pub(crate) struct Mongo {
     mongo_client: MongoClient   
@@ -24,7 +26,7 @@ impl Mongo {
 
 #[async_trait::async_trait]
 impl SearchEngine for Mongo {
-    async fn search(&self, keyword: String, rating: Rating)
+    async fn search(&self, mut keyword: String, rating: Rating)
     -> anyhow::Result<
         Pin<Box<
             dyn Stream<Item = anyhow::Result<Candidate>> + Send + 'static
@@ -33,19 +35,20 @@ impl SearchEngine for Mongo {
         let collection = self.mongo_client
             .database("anime")
             .collection::<Candidate>(match rating {
-                Rating::AllAges => "anime_text_all_ages",
-                Rating::Hentai => "anime_text_hentai"
+                Rating::AllAges => "flat_ani_chara_all_ages",
+                Rating::Hentai => "flat_ani_chara_hentai"
             });
 
+        keyword.retain(|c| !FORBIDDEN.contains(&c));
         let keyword = keyword
-            .escape_default()
+            .escape_debug()
             .to_string()
             .split(' ')
             .filter(|s| !s.trim().is_empty())
             .map(|s| format!("\"{s}\""))
             .collect::<Vec<String>>()
             .join(" ");
-        debug!("search keyword: {keyword}");
+        debug!("search keyword: {keyword:?}");
         
         let candidates = collection.find(doc! {
             "$text": {"$search": keyword}

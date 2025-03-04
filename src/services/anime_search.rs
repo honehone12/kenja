@@ -5,7 +5,7 @@ use crate::{
     documents::anime_search::Rating as RatingQuery,
     search_engine::SearchEngine
 };
-use super::messages::INTERNAL_ERROR;
+use super::display_messages::INTERNAL_ERROR;
 use tracing::error;
 
 tonic::include_proto!("kenja_anime_search");

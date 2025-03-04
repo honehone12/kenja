@@ -1,7 +1,7 @@
 mod search_engine;
 mod services {
     pub(crate) mod anime_search;
-    pub(crate) mod messages;
+    pub(crate) mod display_messages;
 }
 mod documents {
     pub(crate) mod anime_search;
