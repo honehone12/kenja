@@ -5,8 +5,11 @@ use crate::{
     documents::anime_search::Rating as RatingQuery,
     search_engine::SearchEngine
 };
-use super::display_messages::INTERNAL_ERROR;
+use super::display_messages::{INTERNAL_ERROR, INVALID_ARGUMENT};
 use tracing::error;
+
+const FORBIDDEN: [char; 8]  = ['$', '.', '{', '}', '[', ']', ':', ';'];
+const MAX_KEYWORD: usize = 50;
 
 tonic::include_proto!("kenja_anime_search");
 
@@ -31,11 +34,25 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
     async fn search(&self, req: Request<Keyword>)
     -> Result<Response<Self::SearchStream>, Status> {
         let query = req.into_inner();
+        if query.keyword.len() >= MAX_KEYWORD {
+            return Err(Status::invalid_argument(INVALID_ARGUMENT))
+        }
+        
         let rating = RatingQuery::from(query.rating());
-        let keyword = query.keyword;
+        let mut keyword = query.keyword;
+        keyword.retain(|c| !FORBIDDEN.contains(&c));
+        let keyword = keyword
+            .escape_debug()
+            .to_string()
+            .split(' ')
+            .filter(|s| !s.trim().is_empty())
+            .map(|s| format!("\"{s}\""))
+            .collect::<Vec<String>>()
+            .join(" ");
+
         let engine = self.engine.clone();
 
-        let stream = match engine.search(keyword, rating).await {
+        let stream = match engine.search(&keyword, rating).await {
             Ok(s) => {
                 s.map(|r| {
                     match r {

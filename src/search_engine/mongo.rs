@@ -6,9 +6,7 @@ use mongodb::{
 use tokio_stream::{Stream, StreamExt};
 use super::SearchEngine;
 use crate::documents::anime_search::{Candidate, Rating};
-use tracing::debug;
 
-const FORBIDDEN: [char; 8]  = ['$', '.', '{', '}', '[', ']', ':', ';'];
 const COLLECTION: &str = "flat_ani_chara";
 
 #[derive(Clone)]
@@ -27,7 +25,7 @@ impl Mongo {
 
 #[async_trait::async_trait]
 impl SearchEngine for Mongo {
-    async fn search(&self, mut keyword: String, rating: Rating)
+    async fn search(&self, keyword: &str, rating: Rating)
     -> anyhow::Result<
         Pin<Box<
             dyn Stream<Item = anyhow::Result<Candidate>> + Send + 'static
@@ -38,17 +36,6 @@ impl SearchEngine for Mongo {
             .collection::<Candidate>(
                 &format!("{COLLECTION}_{}", rating.to_string())
             );
-
-        keyword.retain(|c| !FORBIDDEN.contains(&c));
-        let keyword = keyword
-            .escape_debug()
-            .to_string()
-            .split(' ')
-            .filter(|s| !s.trim().is_empty())
-            .map(|s| format!("\"{s}\""))
-            .collect::<Vec<String>>()
-            .join(" ");
-        debug!("search keyword: {keyword:?}");
         
         let candidates = collection.find(doc! {
             "$text": {"$search": keyword}
@@ -74,7 +61,7 @@ mod test {
 
         let mongo_uri = env::var("ENGINE_URI")?;
         let mongo = Mongo::new(mongo_uri).await?;
-        let keyword = "school band music club".to_string();
+        let keyword = "school band music club";
         let mut stream = mongo.search(keyword, Rating::AllAges).await?;
         while let Some(candidate) = stream.try_next().await? {
             println!("{candidate:?}");
