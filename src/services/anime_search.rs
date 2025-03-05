@@ -2,13 +2,14 @@ use std::pin::Pin;
 use tokio_stream::{Stream, StreamExt};
 use tonic::{Request, Response, Status};
 use crate::search_engines::SearchEngine;
-use super::display_messages::{INTERNAL_ERROR, INVALID_ARGUMENT};
+use super::{INTERNAL_ERROR, INVALID_ARGUMENT};
 use tracing::error;
 
-const FORBIDDEN: [char; 8]  = ['$', '.', '{', '}', '[', ']', ':', ';'];
-const MAX_KEYWORD: usize = 50;
-
 tonic::include_proto!("kenja_anime_search");
+
+use anime_search_server::AnimeSearch;
+
+const MAX_KEYWORD: usize = 50;
 
 pub struct AnimeSearchService<EN: SearchEngine> {
     engine: EN
@@ -21,7 +22,7 @@ impl<EN: SearchEngine> AnimeSearchService<EN> {
 } 
 
 #[tonic::async_trait]
-impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<EN> {
+impl<EN: SearchEngine> AnimeSearch for AnimeSearchService<EN> {
     type SearchStream = Pin<Box<
         dyn Stream<
             Item = Result<Candidate, Status>
@@ -35,20 +36,10 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
             return Err(Status::invalid_argument(INVALID_ARGUMENT))
         }
         let rating = query.rating().into();
-        let mut keyword = query.keyword;
-        keyword.retain(|c| !FORBIDDEN.contains(&c));
-        let keyword = keyword
-            .escape_debug()
-            .to_string()
-            .split(' ')
-            .filter(|s| !s.trim().is_empty())
-            .map(|s| format!("\"{s}\""))
-            .collect::<Vec<String>>()
-            .join(" ");
-
+        let keyword = query.keyword;
         let engine = self.engine.clone();
 
-        let stream = match engine.search(&keyword, rating).await {
+        let stream = match engine.search(keyword, rating).await {
             Ok(s) => {
                 s.map(|r| {
                     match r {
@@ -75,7 +66,7 @@ mod test {
     use std::{env, time::Duration};
     use tokio_stream::StreamExt;
     use tonic::{transport::Server, Request};
-    use crate::search_engines::mongo::Mongo;
+    use crate::search_engines::mongodb::mongo::Mongo;
     use super::{
         anime_search_server::AnimeSearchServer, 
         AnimeSearchService, Query, Rating,
@@ -106,7 +97,7 @@ mod test {
         let mut client = AnimeSearchClient::connect(connect_to).await?;
         
         let res = client.search(Request::new(Query{ 
-            keyword: "school music band club".to_string(), 
+            keyword: String::from("school music band club"), 
             rating: Rating::AllAges.into() 
         })).await?;
 

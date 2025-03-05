@@ -4,7 +4,7 @@ use kenja::{
         anime_search_server::AnimeSearchServer, 
         AnimeSearchService
     },
-    search_engines::mongo::Mongo
+    search_engines::mongodb::mongo::Mongo
 };
 use tonic::transport::Server as GrpcServer;
 

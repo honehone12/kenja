@@ -4,10 +4,11 @@ use mongodb::{
     bson::doc
 };
 use tokio_stream::{Stream, StreamExt};
-use super::SearchEngine;
-use crate::documents::anime_search::{Candidate, Rating};
-
-const COLLECTION: &str = "flat_ani_chara";
+use crate::{
+    documents::anime_search::{Candidate, Rating},
+    search_engines::SearchEngine
+};
+use super::{FORBIDDEN, SEARCH_COLLECTION};
 
 #[derive(Clone)]
 pub struct Mongo {
@@ -25,16 +26,26 @@ impl Mongo {
 
 #[async_trait::async_trait]
 impl SearchEngine for Mongo {
-    async fn search(&self, keyword: &str, rating: Rating)
+    async fn search(&self, mut keyword: String, rating: Rating)
     -> anyhow::Result<
         Pin<Box<
             dyn Stream<Item = anyhow::Result<Candidate>> + Send + 'static
         >>,
     > {
+        keyword.retain(|c| !FORBIDDEN.contains(&c));
+        let keyword = keyword
+            .escape_debug()
+            .to_string()
+            .split(' ')
+            .filter(|s| !s.trim().is_empty())
+            .map(|s| format!("\"{s}\""))
+            .collect::<Vec<String>>()
+            .join(" ");
+
         let collection = self.mongo_client
             .database("anime")
             .collection::<Candidate>(
-                &format!("{COLLECTION}_{}", rating.to_string())
+                &format!("{SEARCH_COLLECTION}_{}", rating.to_string())
             );
         
         let candidates = collection.find(doc! {
@@ -61,7 +72,7 @@ mod test {
 
         let mongo_uri = env::var("ENGINE_URI")?;
         let mongo = Mongo::new(mongo_uri).await?;
-        let keyword = "school band music club";
+        let keyword =  String::from("school band music club");
         let mut stream = mongo.search(keyword, Rating::AllAges).await?;
         while let Some(candidate) = stream.try_next().await? {
             println!("{candidate:?}");
