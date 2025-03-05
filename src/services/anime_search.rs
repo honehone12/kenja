@@ -13,12 +13,12 @@ const MAX_KEYWORD: usize = 50;
 
 tonic::include_proto!("kenja_anime_search");
 
-pub(crate) struct AnimeSearchService<EN: SearchEngine> {
+pub struct AnimeSearchService<EN: SearchEngine> {
     engine: EN
 }
 
 impl<EN: SearchEngine> AnimeSearchService<EN> {
-    pub(crate) fn new(engine: EN) -> Self {
+    pub fn new(engine: EN) -> Self {
         Self{engine}
     }
 } 

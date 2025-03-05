@@ -1,17 +1,18 @@
 use std::env;
 use kenja::{
+    search_engine::mongo::Mongo,
     services::anime_search::{
-        anime_search_server::AnimeSearchServer, 
-        AnimeSearchService
-    },
-    search_engine::mongo::Mongo
+        AnimeSearchService, 
+        anime_search_server::AnimeSearchServer
+    }
 };
 use tonic::transport::Server as GrpcServer;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
-    
+    dotenvy::dotenv()?;
+
     let serve_at = env::var("SERVE_AT")?.parse()?;
 
     let engine_uri = env::var("ENGINE_URI")?;

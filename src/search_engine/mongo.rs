@@ -10,12 +10,12 @@ use crate::documents::anime_search::{Candidate, Rating};
 const COLLECTION: &str = "flat_ani_chara";
 
 #[derive(Clone)]
-pub(crate) struct Mongo {
+pub struct Mongo {
     mongo_client: MongoClient   
 }
 
 impl Mongo {
-    pub(crate) async fn new(mongo_uri: impl AsRef<str>) 
+    pub async fn new(mongo_uri: impl AsRef<str>) 
     -> anyhow::Result<Mongo> {
         let mongo_client = MongoClient::with_uri_str(mongo_uri).await?;
         let mongo_db = Self{mongo_client};

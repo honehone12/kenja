@@ -7,7 +7,7 @@ use crate::services::anime_search::{
 };
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
-pub(crate) enum Rating {
+pub enum Rating {
     AllAges,
     Hentai
 }
@@ -33,7 +33,7 @@ impl From<RatingMsg> for Rating {
 }
  
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct Parent {
+pub struct Parent {
     pub(crate) name: String,
     pub(crate) name_japanese: Option<String>
 }
@@ -49,7 +49,7 @@ impl From<Parent> for ParentMsg {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct Candidate {
+pub struct Candidate {
     pub(crate) url: String,
     pub(crate) parent: Option<Parent>,
     pub(crate) name: String,
