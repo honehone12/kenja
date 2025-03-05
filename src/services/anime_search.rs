@@ -1,10 +1,7 @@
 use std::pin::Pin;
 use tokio_stream::{Stream, StreamExt};
 use tonic::{Request, Response, Status};
-use crate::{
-    documents::anime_search::Rating as RatingQuery,
-    search_engines::SearchEngine
-};
+use crate::search_engines::SearchEngine;
 use super::display_messages::{INTERNAL_ERROR, INVALID_ARGUMENT};
 use tracing::error;
 
@@ -31,7 +28,7 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
         > + Send + 'static
     >>;
 
-    async fn search(&self, req: Request<Keyword>)
+    async fn search(&self, req: Request<Query>)
     -> Result<Response<Self::SearchStream>, Status> {
         let query = req.into_inner();
         if query.keyword.len() >= MAX_KEYWORD {
@@ -81,8 +78,8 @@ mod test {
     use crate::search_engines::mongo::Mongo;
     use super::{
         anime_search_server::AnimeSearchServer, 
-        AnimeSearchService,
-        anime_search_client::AnimeSearchClient, Keyword, Rating
+        AnimeSearchService, Query, Rating,
+        anime_search_client::AnimeSearchClient 
     };
 
     #[tokio::test]
@@ -108,7 +105,7 @@ mod test {
 
         let mut client = AnimeSearchClient::connect(connect_to).await?;
         
-        let res = client.search(Request::new(Keyword{ 
+        let res = client.search(Request::new(Query{ 
             keyword: "school music band club".to_string(), 
             rating: Rating::AllAges.into() 
         })).await?;
