@@ -1,6 +1,6 @@
 use std::env;
 use kenja::{
-    search_engine::mongo::Mongo,
+    search_engines::mongo::Mongo,
     services::anime_search::{
         AnimeSearchService, 
         anime_search_server::AnimeSearchServer

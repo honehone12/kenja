@@ -1,4 +1,4 @@
-pub mod search_engine;
+pub mod search_engines;
 pub mod services {
     pub mod anime_search;
     pub mod display_messages;

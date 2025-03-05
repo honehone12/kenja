@@ -3,7 +3,7 @@ use tokio_stream::{Stream, StreamExt};
 use tonic::{Request, Response, Status};
 use crate::{
     documents::anime_search::Rating as RatingQuery,
-    search_engine::SearchEngine
+    search_engines::SearchEngine
 };
 use super::display_messages::{INTERNAL_ERROR, INVALID_ARGUMENT};
 use tracing::error;
@@ -37,8 +37,7 @@ impl<EN: SearchEngine> anime_search_server::AnimeSearch for AnimeSearchService<E
         if query.keyword.len() >= MAX_KEYWORD {
             return Err(Status::invalid_argument(INVALID_ARGUMENT))
         }
-        
-        let rating = RatingQuery::from(query.rating());
+        let rating = query.rating().into();
         let mut keyword = query.keyword;
         keyword.retain(|c| !FORBIDDEN.contains(&c));
         let keyword = keyword
@@ -79,7 +78,7 @@ mod test {
     use std::{env, time::Duration};
     use tokio_stream::StreamExt;
     use tonic::{transport::Server, Request};
-    use crate::search_engine::mongo::Mongo;
+    use crate::search_engines::mongo::Mongo;
     use super::{
         anime_search_server::AnimeSearchServer, 
         AnimeSearchService,

@@ -51,7 +51,7 @@ mod test {
     use tokio_stream::StreamExt;
     use crate::{
         documents::anime_search::Rating, 
-        search_engine::SearchEngine
+        search_engines::SearchEngine
     };
     use super::Mongo;
     
