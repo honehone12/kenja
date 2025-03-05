@@ -18,7 +18,7 @@ struct Cli {
 enum Command {
     Search {
         keyword: String,
-        #[arg(long, default_value_t = true)]
+        #[arg(long, default_value_t = false)]
         hentai: bool 
     }
 }
@@ -48,7 +48,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
     dotenvy::dotenv()?;
 
-    let addr = env::var("SERVER_AT")?;
+    let addr = env::var("SERVE_AT")?;
     let connect_to = format!("http://{addr}");
 
     let cli = Cli::parse();
