@@ -78,7 +78,8 @@ mod test {
     };
     use super::Atlas;
 
-    #[tokio::test]
+    #[allow(dead_code)]
+    #[cfg_attr(feature = "atlas_test", tokio::test)]
     async fn test_atlas_search() -> anyhow::Result<()> {
         dotenvy::dotenv()?;
 

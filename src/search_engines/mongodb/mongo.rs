@@ -54,6 +54,7 @@ impl SearchEngine for Mongo {
     }
 }
 
+
 #[cfg(test)]
 mod test {
     use std::env;
@@ -64,7 +65,8 @@ mod test {
     };
     use super::Mongo;
     
-    #[tokio::test]
+    #[allow(dead_code)]
+    #[cfg_attr(not(feature = "atlas_test"), tokio::test)]
     async fn test_mongo_search() -> anyhow::Result<()> {
         dotenvy::dotenv()?;
 

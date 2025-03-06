@@ -65,7 +65,11 @@ impl<EN: SearchEngine> AnimeSearch for AnimeSearchService<EN> {
 
 #[cfg(test)]
 mod test {
-    use std::{env, time::Duration};
+    use std::{
+        env, 
+        net::{IpAddr, Ipv4Addr, SocketAddr}, 
+        time::Duration
+    };
     use tokio_stream::StreamExt;
     use tonic::{transport::Server, Request};
     use crate::search_engines::mongodb::mongo::Mongo;
@@ -75,12 +79,10 @@ mod test {
         anime_search_client::AnimeSearchClient 
     };
 
-    #[tokio::test]
+    #[allow(dead_code)]
+    #[cfg_attr(not(feature = "atlas_test"), tokio::test)]
     async fn test_search_service() -> anyhow::Result<()> {
         dotenvy::dotenv()?;
-
-        let serve_at = env::var("SERVE_AT")?.parse()?;
-        let connect_to = format!("http://{serve_at}");
 
         let handle = tokio::spawn(async move {
             let engine_uri = env::var("ENGINE_URI").unwrap();
@@ -90,13 +92,17 @@ mod test {
 
             Server::builder()
                 .add_service(anime_search_server)
-                .serve(serve_at).await
+                .serve(
+                    SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 50051)
+                ).await
                 .unwrap();
         });
 
         tokio::time::sleep(Duration::from_millis(100)).await;
 
-        let mut client = AnimeSearchClient::connect(connect_to).await?;
+        let mut client = AnimeSearchClient::connect(
+            "http://localhost:50051".to_string()
+        ).await?;
         
         let res = client.search(Request::new(Query{ 
             keyword: String::from("school music band club"), 
