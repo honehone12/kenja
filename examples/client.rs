@@ -1,4 +1,3 @@
-use std::env;
 use clap::{Parser, Subcommand};
 use kenja::services::anime_search::{
     anime_search_client::AnimeSearchClient, 

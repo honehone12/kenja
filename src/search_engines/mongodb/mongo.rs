@@ -65,7 +65,7 @@ mod test {
     use super::Mongo;
     
     #[tokio::test]
-    async fn test_search_engine() -> anyhow::Result<()> {
+    async fn test_mongo_search() -> anyhow::Result<()> {
         dotenvy::dotenv()?;
 
         let mongo_uri = env::var("ENGINE_URI")?;

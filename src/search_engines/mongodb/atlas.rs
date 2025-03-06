@@ -67,3 +67,29 @@ impl SearchEngine for Atlas {
         Ok(Box::pin(candidates.map(|r| r.map_err(|e| e.into()))))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use std::env;
+    use tokio_stream::StreamExt;
+    use crate::{
+        documents::anime_search::Rating, 
+        search_engines::SearchEngine
+    };
+    use super::Atlas;
+
+    #[tokio::test]
+    async fn test_atlas_search() -> anyhow::Result<()> {
+        dotenvy::dotenv()?;
+
+        let mongo_uri = env::var("ENGINE_URI")?;
+        let mongo = Atlas::new(mongo_uri).await?;
+        let keyword =  String::from("school band music club");
+        let mut stream = mongo.search(keyword, Rating::AllAges).await?;
+        while let Some(candidate) = stream.try_next().await? {
+            println!("{candidate:?}");
+        }
+
+        Ok(())
+    }
+}
