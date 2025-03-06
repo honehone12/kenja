@@ -55,9 +55,10 @@ impl SearchEngine for Atlas {
                             "name", 
                             "name_english", 
                             "aliases",
-                            "descriptions",
+                            "description",
                             "parent.name"
-                        ]
+                        ],
+                        "matchCriteria": "all"
                     }
                 }
             }

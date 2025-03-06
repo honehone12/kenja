@@ -35,10 +35,13 @@ async fn search(
     let res = client.search(Request::new(query)).await?;
     let mut stream = res.into_inner();
     
+    let mut count = 0u64;
     while let Some(c) = stream.try_next().await? {
         info!("{c:?}");
+        count += 1;
     }
 
+    info!("received {count}items");
     Ok(())
 }
 
