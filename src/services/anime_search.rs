@@ -32,7 +32,9 @@ impl<EN: SearchEngine> AnimeSearch for AnimeSearchService<EN> {
     async fn search(&self, req: Request<Query>)
     -> Result<Response<Self::SearchStream>, Status> {
         let query = req.into_inner();
-        if query.keyword.len() >= MAX_KEYWORD {
+        if query.keyword.trim().is_empty() 
+            || query.keyword.len() >= MAX_KEYWORD 
+        {
             return Err(Status::invalid_argument(INVALID_ARGUMENT))
         }
         let rating = query.rating().into();

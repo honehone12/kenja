@@ -8,7 +8,7 @@ use crate::{
     documents::anime_search::{Candidate, Rating},
     search_engines::SearchEngine
 };
-use super::{FORBIDDEN, SEARCH_COLLECTION};
+use super::{FORBIDDEN, SEARCH_DATABASE, SEARCH_COLLECTION};
 
 #[derive(Clone)]
 pub struct Mongo {
@@ -16,11 +16,9 @@ pub struct Mongo {
 }
 
 impl Mongo {
-    pub async fn new(mongo_uri: impl AsRef<str>) 
-    -> anyhow::Result<Mongo> {
+    pub async fn new(mongo_uri: impl AsRef<str>) -> anyhow::Result<Self> {
         let mongo_client = MongoClient::with_uri_str(mongo_uri).await?;
-        let mongo_db = Self{mongo_client};
-        Ok(mongo_db)
+        Ok(Self{mongo_client})
     }
 }
 
@@ -43,7 +41,7 @@ impl SearchEngine for Mongo {
             .join(" ");
 
         let collection = self.mongo_client
-            .database("anime")
+            .database(SEARCH_DATABASE)
             .collection::<Candidate>(
                 &format!("{SEARCH_COLLECTION}_{}", rating.to_string())
             );

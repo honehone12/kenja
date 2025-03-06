@@ -46,17 +46,13 @@ async fn search(
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
-    dotenvy::dotenv()?;
-
-    let addr = env::var("SERVE_AT")?;
-    let connect_to = format!("http://{addr}");
-
     let cli = Cli::parse();
+    const ADDR: &str = "http://localhost:50051";
 
     match cli.command {
         Command::Search { keyword, hentai } => {
             search(
-                connect_to.to_string(), 
+                ADDR.to_string(), 
                 keyword, 
                 match hentai {
                     false => Rating::AllAges,
