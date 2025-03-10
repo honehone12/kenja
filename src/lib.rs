@@ -9,17 +9,17 @@ pub mod documents {
     pub mod anime_search;
 }
 
-use std::{env, net::{IpAddr, Ipv4Addr, SocketAddr}};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tonic::transport::Server as GrpcServer;
 use services::anime_search::{
     anime_search_server::AnimeSearchServer, 
     AnimeSearchService
 };
-use search_engines::mongodb::atlas::Atlas;
+use search_engines::SearchEngine;
 
-pub async fn process_main() -> anyhow::Result<()> {
-    let engine_uri = env::var("ENGINE_URI")?;
-    let engine = Atlas::new(engine_uri).await?;
+pub async fn server_main<EN>(engine: EN) 
+-> anyhow::Result<()>
+where EN: SearchEngine {
     let anime_search_service = AnimeSearchService::new(engine);
     let anime_search_server = AnimeSearchServer::new(anime_search_service);
     let serve_at = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 50051);
