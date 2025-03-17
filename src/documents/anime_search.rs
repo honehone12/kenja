@@ -50,7 +50,7 @@ impl From<Parent> for ParentMsg {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Candidate {
-    pub(crate) url: String,
+    pub(crate) mal_id: i64,
     pub(crate) parent: Option<Parent>,
     pub(crate) name: String,
     pub(crate) name_english: Option<String>,
@@ -61,7 +61,7 @@ impl From<Candidate> for CandidateMsg {
     #[inline]
     fn from(value: Candidate) -> Self {
         CandidateMsg{
-            url: value.url,
+            id: value.mal_id,
             parent: value.parent.map(|p| p.into()),
             name: value.name,
             name_english: value.name_english,
