@@ -8,7 +8,6 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use crate::services::anime_search::{
     Candidate as CandidateMsg, 
     Parent as ParentMsg, 
-    ItemId as ItemIdMsg,
     ItemType as ItemTypeMsg, 
     Rating as RatingMsg
 };
@@ -74,16 +73,6 @@ pub struct ItemId {
     pub(crate) item_type: ItemType
 }
 
-impl From<ItemId> for ItemIdMsg {
-    #[inline]
-    fn from(value: ItemId) -> Self {
-        ItemIdMsg { 
-            id: value.id, 
-            item_type: value.item_type.into()
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Parent {
     pub(crate) name: String,
@@ -113,7 +102,8 @@ impl From<Candidate> for CandidateMsg {
     #[inline]
     fn from(value: Candidate) -> Self {
         CandidateMsg{
-            id: Some(value.id.into()),
+            id: value.id.id,
+            item_type: value.id.item_type.into(),
             parent: value.parent.map(|p| p.into()),
             name: value.name,
             name_english: value.name_english,
