@@ -104,7 +104,6 @@ impl From<Parent> for ParentMsg {
 pub struct Candidate {
     pub(crate) id: ItemId,
     pub(crate) parent: Option<Parent>,
-    pub(crate) tags: Vec<String>,
     pub(crate) name: String,
     pub(crate) name_english: Option<String>,
     pub(crate) name_japanese: Option<String>
@@ -116,7 +115,6 @@ impl From<Candidate> for CandidateMsg {
         CandidateMsg{
             id: Some(value.id.into()),
             parent: value.parent.map(|p| p.into()),
-            tags: value.tags,
             name: value.name,
             name_english: value.name_english,
             name_japanese: value.name_japanese
