@@ -9,7 +9,7 @@ use crate::services::anime_search::{
     Candidate as CandidateMsg, 
     Parent as ParentMsg, 
     ItemId as ItemIdMsg,
-    DocumentType as DocumentTypeMsg, 
+    ItemType as ItemTypeMsg, 
     Rating as RatingMsg
 };
 
@@ -44,34 +44,34 @@ impl TryFrom<RatingMsg> for Rating {
 
 #[derive(Serialize_repr, Deserialize_repr, Debug)]
 #[repr(i32)]
-pub enum DocumentType {
+pub enum ItemType {
     Unspecified = 0,
     Anime = 1,
     Character = 2
 }
 
-impl From<DocumentType> for DocumentTypeMsg {
+impl From<ItemType> for ItemTypeMsg {
     #[inline]
-    fn from(value: DocumentType) -> Self {
+    fn from(value: ItemType) -> Self {
         match value {
-            DocumentType::Unspecified => DocumentTypeMsg::Unspecified,
-            DocumentType::Anime => DocumentTypeMsg::Anime,
-            DocumentType::Character => DocumentTypeMsg::Character,
+            ItemType::Unspecified => ItemTypeMsg::Unspecified,
+            ItemType::Anime => ItemTypeMsg::Anime,
+            ItemType::Character => ItemTypeMsg::Character,
         }
     }
 }
 
-impl From<DocumentType> for i32 {
+impl From<ItemType> for i32 {
     #[inline]
-    fn from(value: DocumentType) -> Self {
-        Into::<DocumentTypeMsg>::into(value).into()
+    fn from(value: ItemType) -> Self {
+        Into::<ItemTypeMsg>::into(value).into()
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ItemId {
     pub(crate) id: i64,
-    pub(crate) document_type: DocumentType
+    pub(crate) item_type: ItemType
 }
 
 impl From<ItemId> for ItemIdMsg {
@@ -79,7 +79,7 @@ impl From<ItemId> for ItemIdMsg {
     fn from(value: ItemId) -> Self {
         ItemIdMsg { 
             id: value.id, 
-            document_type: value.document_type.into()
+            item_type: value.item_type.into()
         }
     }
 }
