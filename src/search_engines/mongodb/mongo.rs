@@ -8,7 +8,7 @@ use crate::{
     documents::anime_search::{Candidate, Rating},
     search_engines::SearchEngine
 };
-use super::{FORBIDDEN, SEARCH_DATABASE, SEARCH_COLLECTION};
+use super::{FORBIDDEN, SEARCH_DATABASE};
 
 #[derive(Clone)]
 pub struct Mongo {
@@ -42,9 +42,7 @@ impl SearchEngine for Mongo {
 
         let collection = self.mongo_client
             .database(SEARCH_DATABASE)
-            .collection::<Candidate>(
-                &format!("{SEARCH_COLLECTION}_{}", rating.to_string())
-            );
+            .collection::<Candidate>(&rating.to_string());
         
         let candidates = collection.find(doc! {
             "$text": {"$search": keyword}
