@@ -91,7 +91,7 @@ impl From<Parent> for ParentMsg {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Candidate {
-    pub(crate) id: ItemId,
+    pub(crate) item_id: ItemId,
     pub(crate) parent: Option<Parent>,
     pub(crate) name: String,
     pub(crate) name_english: Option<String>,
@@ -102,8 +102,8 @@ impl From<Candidate> for CandidateMsg {
     #[inline]
     fn from(value: Candidate) -> Self {
         CandidateMsg{
-            id: value.id.id,
-            item_type: value.id.item_type.into(),
+            id: value.item_id.id,
+            item_type: value.item_id.item_type.into(),
             parent: value.parent.map(|p| p.into()),
             name: value.name,
             name_english: value.name_english,
