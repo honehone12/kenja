@@ -37,7 +37,10 @@ impl<EN: SearchEngine> AnimeSearch for AnimeSearchService<EN> {
         {
             return Err(Status::invalid_argument(INVALID_ARGUMENT))
         }
-        let rating = query.rating().into();
+        let rating = match query.rating().try_into() {
+            Ok(r) => r,
+            Err(_) => return Err(Status::invalid_argument(INVALID_ARGUMENT))
+        };
         let keyword = query.keyword;
         let engine = self.engine.clone();
 

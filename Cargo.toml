@@ -7,20 +7,21 @@ edition = "2024"
 atlas_test = []
 
 [dependencies]
-anyhow = "^1.0.96"
-async-trait = "^0.1.86"
-mongodb = "^3.2.1"
-prost = "^0.13.5"
-serde = { version = "^1.0.218", features = ["serde_derive"] }
-tokio = { version = "^1.43.0", features = ["macros", "rt-multi-thread"] }
-tokio-stream = "^0.1.17"
-tonic = "^0.12.3"
-tracing = "^0.1.41"
-tracing-subscriber = "^0.3.19"
+anyhow = "1.0.96"
+async-trait = "0.1.86"
+mongodb = "3.2.1"
+prost = "0.13.5"
+serde = { version = "1.0.218", features = ["serde_derive"] }
+serde_repr = "0.1.20"
+tokio = { version = "1.43.0", features = ["macros", "rt-multi-thread"] }
+tokio-stream = "0.1.17"
+tonic = "0.12.3"
+tracing = "0.1.41"
+tracing-subscriber = "0.3.19"
 
 [dev-dependencies]
-clap = { version = "^4.5.31", features = ["derive"] }
-dotenvy = "^0.15.7"
+clap = { version = "4.5.31", features = ["derive"] }
+dotenvy = "0.15.7"
 
 [build-dependencies]
-tonic-build = "^0.12.3"
+tonic-build = "0.12.3"
