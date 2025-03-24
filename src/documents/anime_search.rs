@@ -75,6 +75,7 @@ pub struct ItemId {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Parent {
+    pub(crate) id: i64,
     pub(crate) name: String,
     pub(crate) name_japanese: Option<String>
 }
@@ -83,6 +84,7 @@ impl From<Parent> for ParentMsg {
     #[inline]
     fn from(value: Parent) -> Self {
         ParentMsg{
+            id: value.id,
             name: value.name,
             name_japanese: value.name_japanese,
         }
