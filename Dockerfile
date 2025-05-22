@@ -6,4 +6,4 @@ COPY --chown=nonroot:nonroot target/release/kenja /kenja/kenja
 
 USER nonroot:nonroot
 
-CMD [ "/kenja/kenja" ]
+ENTRYPOINT [ "/kenja/kenja" ]
