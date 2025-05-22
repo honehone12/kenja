@@ -22,7 +22,7 @@ pub async fn server_main<EN>(engine: EN)
 where EN: SearchEngine {
     let anime_search_service = AnimeSearchService::new(engine);
     let anime_search_server = AnimeSearchServer::new(anime_search_service);
-    let serve_at = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 50051);
+    let serve_at = SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 50051);
 
     GrpcServer::builder()
         .add_service(anime_search_server)
