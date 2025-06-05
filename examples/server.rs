@@ -8,11 +8,13 @@ async fn main() -> anyhow::Result<()> {
 
     if cfg!(feature = "atlas_test") {
         let engine_uri = env::var("ENGINE_URI")?;
-        let engine = Atlas::new(engine_uri).await?;
+        let db_name = env::var("SEARCH_DATABASE")?;
+        let engine = Atlas::new(engine_uri, db_name).await?;
         kenja::server_main(engine, IpAddr::V4(Ipv4Addr::LOCALHOST)).await
     } else {
         let engine_uri = env::var("DEV_ENGINE_URI")?;
-        let engine = Mongo::new(engine_uri).await?;
+        let db_name = env::var("SEARCH_DATABASE")?;
+        let engine = Mongo::new(engine_uri, db_name).await?;
         kenja::server_main(engine, IpAddr::V4(Ipv4Addr::LOCALHOST)).await
     }
 }

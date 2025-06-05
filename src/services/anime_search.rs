@@ -89,7 +89,8 @@ mod test {
 
         let handle = tokio::spawn(async move {
             let engine_uri = env::var("ENGINE_URI").unwrap();
-            let engine = Mongo::new(engine_uri).await.unwrap();
+            let db_name = env::var("SEARCH_DATABASE").unwrap();
+            let engine = Mongo::new(engine_uri, db_name).await.unwrap();
             let anime_search_service = AnimeSearchService::new(engine);
             let anime_search_server = AnimeSearchServer::new(anime_search_service);
 

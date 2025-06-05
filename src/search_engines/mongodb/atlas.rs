@@ -12,13 +12,14 @@ use super::FORBIDDEN;
 
 #[derive(Clone)]
 pub struct Atlas {
-    mongo_client: MongoClient
+    mongo_client: MongoClient,
+    db_name: String
 }
 
 impl Atlas {
-    pub async fn new(mongo_uri: impl AsRef<str>) -> anyhow::Result<Self> {
+    pub async fn new(mongo_uri: impl AsRef<str>, db_name: String) -> anyhow::Result<Self> {
         let mongo_client = MongoClient::with_uri_str(mongo_uri).await?;
-        Ok(Self{mongo_client})
+        Ok(Self{mongo_client, db_name})
     }
 }
 
@@ -40,7 +41,7 @@ impl SearchEngine for Atlas {
             .join(" ");
 
         let collection = self.mongo_client
-            .database(env!("SEARCH_DATABASE"))
+            .database(&self.db_name)
             .collection::<Candidate>(&rating.to_string());
 
         let candidates = collection.aggregate(vec![
@@ -83,7 +84,8 @@ mod test {
         dotenvy::dotenv()?;
 
         let mongo_uri = env::var("ENGINE_URI")?;
-        let mongo = Atlas::new(mongo_uri).await?;
+        let db_name = env::var("SEARCH_DATABASE")?;
+        let mongo = Atlas::new(mongo_uri, db_name).await?;
         let keyword =  String::from("school band music club");
         let mut stream = mongo.search(keyword, Rating::AllAges).await?;
         while let Some(candidate) = stream.try_next().await? {

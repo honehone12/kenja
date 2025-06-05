@@ -8,17 +8,18 @@ use crate::{
     documents::anime_search::{Candidate, Rating},
     search_engines::SearchEngine
 };
-use super::{FORBIDDEN, SEARCH_DATABASE};
+use super::FORBIDDEN;
 
 #[derive(Clone)]
 pub struct Mongo {
-    mongo_client: MongoClient   
+    mongo_client: MongoClient,
+    db_name: String   
 }
 
 impl Mongo {
-    pub async fn new(mongo_uri: impl AsRef<str>) -> anyhow::Result<Self> {
+    pub async fn new(mongo_uri: impl AsRef<str>, db_name: String) -> anyhow::Result<Self> {
         let mongo_client = MongoClient::with_uri_str(mongo_uri).await?;
-        Ok(Self{mongo_client})
+        Ok(Self{mongo_client, db_name})
     }
 }
 
@@ -41,7 +42,7 @@ impl SearchEngine for Mongo {
             .join(" ");
 
         let collection = self.mongo_client
-            .database(SEARCH_DATABASE)
+            .database(&self.db_name)
             .collection::<Candidate>(&rating.to_string());
         
         let candidates = collection.find(doc! {
@@ -69,7 +70,8 @@ mod test {
         dotenvy::dotenv()?;
 
         let mongo_uri = env::var("ENGINE_URI")?;
-        let mongo = Mongo::new(mongo_uri).await?;
+        let db_name = env::var("SEARCH_DATABASE")?;
+        let mongo = Mongo::new(mongo_uri, db_name).await?;
         let keyword =  String::from("school band music club");
         let mut stream = mongo.search(keyword, Rating::AllAges).await?;
         while let Some(candidate) = stream.try_next().await? {
