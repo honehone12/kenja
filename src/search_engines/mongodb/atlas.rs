@@ -8,7 +8,7 @@ use crate::{
     documents::anime_search::{Candidate, Rating},
     search_engines::SearchEngine
 };
-use super::{FORBIDDEN, SEARCH_DATABASE};
+use super::FORBIDDEN;
 
 #[derive(Clone)]
 pub struct Atlas {
@@ -40,7 +40,7 @@ impl SearchEngine for Atlas {
             .join(" ");
 
         let collection = self.mongo_client
-            .database(SEARCH_DATABASE)
+            .database(env!("SEARCH_DATABASE"))
             .collection::<Candidate>(&rating.to_string());
 
         let candidates = collection.aggregate(vec![
